@@ -5,11 +5,14 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#define QUERY          '?'
+
 #define ANALOG_READ    'a'
 #define GET_BAUDRATE   'b'
 #define PIN_MODE       'c'
 #define DIGITAL_READ   'd'
 #define READ_ENCODERS  'e'
+#define MOTOR_KILL     'k'
 #define MOTOR_SPEEDS   'm'
 #define PING           'p'
 #define RESET_ENCODERS 'r'
