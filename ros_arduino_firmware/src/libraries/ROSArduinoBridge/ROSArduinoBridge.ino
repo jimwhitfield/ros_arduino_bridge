@@ -114,7 +114,7 @@
 
   /* Stop the robot if it hasn't received a movement command
    in this number of milliseconds */
-  #define AUTO_STOP_INTERVAL 2000
+  #define AUTO_STOP_INTERVAL 4000
   long lastMotorCommand = AUTO_STOP_INTERVAL;
 #endif
 
@@ -160,7 +160,7 @@ int runCommand() {
   
   switch(cmd) {
   case QUERY:
-    Serial.println("ROSArduinoBridge ready");
+    Serial.println("ROSArduinoBridge (4/24) ready");
     break;
   case GET_BAUDRATE:
     Serial.println(BAUDRATE);
@@ -207,7 +207,7 @@ int runCommand() {
    case RESET_ENCODERS:
     resetEncoders();
     resetPID();
-    Serial.println("OK");
+    Serial.println("OK:RESET_ENCODERS:OK");
     break;
   case MOTOR_KILL:
     leftPID.TargetTicksPerFrame = 0;
@@ -227,7 +227,11 @@ int runCommand() {
     else { 
       moving = 1;
     }
+    Serial.print("request for left motion is:");
+    Serial.println(arg1);
     leftPID.TargetTicksPerFrame = arg1;
+    Serial.print("request for right motion is:");
+    Serial.println(arg2);
     rightPID.TargetTicksPerFrame = arg2;
     Serial.print("L="); 
     Serial.print(leftPID.TargetTicksPerFrame); 
@@ -261,24 +265,20 @@ void setup() {
 #ifdef USE_BASE
   #ifdef ARDUINO_ENC_COUNTER
     //set as inputs
-    DDRD &= ~(1<<LEFT_ENC_PIN_A);
-    DDRD &= ~(1<<LEFT_ENC_PIN_B);
-    DDRC &= ~(1<<RIGHT_ENC_PIN_A);
-    DDRC &= ~(1<<RIGHT_ENC_PIN_B);
+    DDRB &= ~(1<<LEFT_ENC_PIN);
+    DDRD &= ~(1<<RIGHT_ENC_PIN);
     
     //enable pull up resistors
-    PORTD |= (1<<LEFT_ENC_PIN_A);
-    PORTD |= (1<<LEFT_ENC_PIN_B);
-    PORTC |= (1<<RIGHT_ENC_PIN_A);
-    PORTC |= (1<<RIGHT_ENC_PIN_B);
+    PORTB |= (1<<LEFT_ENC_PIN);
+    PORTD |= (1<<RIGHT_ENC_PIN);
     
     // tell pin change mask to listen to left encoder pins
-    PCMSK2 |= (1 << LEFT_ENC_PIN_A)|(1 << LEFT_ENC_PIN_B);
+    PCMSK0 |= (1 << LEFT_ENC_PIN); 
     // tell pin change mask to listen to right encoder pins
-    PCMSK1 |= (1 << RIGHT_ENC_PIN_A)|(1 << RIGHT_ENC_PIN_B);
+    PCMSK2 |= (1 << RIGHT_ENC_PIN);
     
-    // enable PCINT1 and PCINT2 interrupt in the general interrupt mask
-    PCICR |= (1 << PCIE1) | (1 << PCIE2);
+    // enable PCINT0 and PCINT2 interrupt in the general interrupt mask
+    PCICR |= (1 << PCIE0) | (1 << PCIE2);
   #endif
   initMotorController();
   resetPID();
@@ -354,7 +354,7 @@ void loop() {
     rightPID.TargetTicksPerFrame = 0;
     setMotorSpeeds(0, 0);
     moving = 0;
-    Serial.println("KILLED by autostop");
+    Serial.println("KILLED by autostop (reset MotorSpeeds)");
 
   }
 #endif

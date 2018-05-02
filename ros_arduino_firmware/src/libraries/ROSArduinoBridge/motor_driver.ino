@@ -59,47 +59,69 @@
   void initMotorController() {
     pinMode(RIGHT_MOTOR_FORWARD,OUTPUT);
     pinMode(RIGHT_MOTOR_BACKWARD,OUTPUT);
+    pinMode(RIGHT_MOTOR_ENABLE,OUTPUT);
     pinMode(LEFT_MOTOR_FORWARD,OUTPUT);
     pinMode(LEFT_MOTOR_BACKWARD,OUTPUT);
-    pinMode(ENA,OUTPUT);
-    pinMode(ENB,OUTPUT);
-    
+    pinMode(LEFT_MOTOR_ENABLE,OUTPUT);
+
+    // start with telling motors to not move either forward or back...
+    digitalWrite(LEFT_MOTOR_FORWARD, 0); 
+    digitalWrite(LEFT_MOTOR_BACKWARD, 0); 
+    digitalWrite(RIGHT_MOTOR_FORWARD, 0); 
+    digitalWrite(RIGHT_MOTOR_BACKWARD, 0); 
+
+    // .. but start with telling both wheels to run full-speed WHEN A DIRECTION IS APPLIED
     digitalWrite(RIGHT_MOTOR_ENABLE, HIGH);
     digitalWrite(LEFT_MOTOR_ENABLE, HIGH);
   }
   
-  void setMotorSpeed(int i, int spd) {
-    unsigned char reverse = 0;
+  void setMotorSpeed(int side, int spd) {
+    bool reverse = false;
+    Serial.print("DBG-setMotorSpeed with side:");
+    Serial.print(side);
+    Serial.print(" and spd:");
+    Serial.println(spd);
   
     if (spd < 0)
     {
       spd = -spd;
-      reverse = 1;
+      reverse = true;
     }
     if (spd > 255)
       spd = 255;
     
-    if (i == LEFT) { 
+    if (side == LEFT) { 
       if (spd == 0) {  
-        analogWrite(LEFT_MOTOR_FORWARD, 0); 
-        analogWrite(LEFT_MOTOR_BACKWARD, 0); 
+        digitalWrite(LEFT_MOTOR_FORWARD, 0); 
+        digitalWrite(LEFT_MOTOR_BACKWARD, 0); 
+        analogWrite(LEFT_MOTOR_ENABLE, 0); 
       }
-      else if (reverse == 0) { 
-        analogWrite(LEFT_MOTOR_FORWARD, spd); 
-//        analogWrite(LEFT_MOTOR_BACKWARD, 0); 
+      else if (reverse) { 
+        digitalWrite(LEFT_MOTOR_BACKWARD, 1); 
+        digitalWrite(LEFT_MOTOR_FORWARD, 0); 
+        analogWrite(LEFT_MOTOR_ENABLE, spd); 
       }
-      else if (reverse == 1) { 
-        analogWrite(LEFT_MOTOR_BACKWARD, spd); 
-//        analogWrite(LEFT_MOTOR_FORWARD, 0); 
+      else  { 
+        digitalWrite(LEFT_MOTOR_FORWARD, 1); 
+        digitalWrite(LEFT_MOTOR_BACKWARD, 0); 
+        analogWrite(LEFT_MOTOR_ENABLE, spd); 
       }
     }
-    else /*if (i == RIGHT) //no need for condition*/ {
-      if (reverse == 0) { 
-        analogWrite(RIGHT_MOTOR_FORWARD, spd); 
-//        analogWrite(RIGHT_MOTOR_BACKWARD, 0); 
-      } else if (reverse == 1) { 
-        analogWrite(RIGHT_MOTOR_BACKWARD, spd); 
-//        analogWrite(RIGHT_MOTOR_FORWARD, 0); 
+    else if (side == RIGHT) {
+      if (spd == 0) {  
+        digitalWrite(RIGHT_MOTOR_FORWARD, 0); 
+        digitalWrite(RIGHT_MOTOR_BACKWARD, 0); 
+        analogWrite(RIGHT_MOTOR_ENABLE, 0); 
+      }
+      else if (reverse) { 
+        digitalWrite(RIGHT_MOTOR_BACKWARD, 1); 
+        digitalWrite(RIGHT_MOTOR_FORWARD, 0); 
+        analogWrite(RIGHT_MOTOR_ENABLE, spd); 
+      }
+      else  { 
+        digitalWrite(RIGHT_MOTOR_FORWARD, 1); 
+        digitalWrite(RIGHT_MOTOR_BACKWARD, 0); 
+        analogWrite(RIGHT_MOTOR_ENABLE, spd); 
       }
     }
   }
