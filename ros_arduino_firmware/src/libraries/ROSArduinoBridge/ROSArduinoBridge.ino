@@ -114,7 +114,7 @@
 
   /* Stop the robot if it hasn't received a movement command
    in this number of milliseconds */
-  #define AUTO_STOP_INTERVAL 4000
+  #define AUTO_STOP_INTERVAL 2000
   long lastMotorCommand = AUTO_STOP_INTERVAL;
 #endif
 
@@ -181,9 +181,15 @@ int runCommand() {
     Serial.println("OK"); 
     break;
   case PIN_MODE:
-    if (arg2 == 0) pinMode(arg1, INPUT);
-    else if (arg2 == 1) pinMode(arg1, OUTPUT);
-    Serial.println("OK");
+    if (arg2 == 0) {
+        pinMode(arg1, INPUT);
+        Serial.print("INPUT on pin:");Serial.print(arg1);
+    } else if (arg2 == 1) {
+        pinMode(arg1, OUTPUT);
+        Serial.println("OUTPUT on pin:");Serial.print(arg1);
+    } else {
+        Serial.print("PIN_MODE bad arguments");
+    }
     break;
   case PING:
     Serial.println(Ping(arg1));
@@ -227,12 +233,14 @@ int runCommand() {
     else { 
       moving = 1;
     }
-    Serial.print("request for left motion is:");
-    Serial.println(arg1);
     leftPID.TargetTicksPerFrame = arg1;
-    Serial.print("request for right motion is:");
-    Serial.println(arg2);
     rightPID.TargetTicksPerFrame = arg2;
+    Serial.print("L="); 
+    Serial.print(leftPID.TargetTicksPerFrame); 
+    Serial.print(" R="); 
+    Serial.println(rightPID.TargetTicksPerFrame); 
+    break;
+  case MOTOR_SPEEDS_INSPECT:
     Serial.print("L="); 
     Serial.print(leftPID.TargetTicksPerFrame); 
     Serial.print(" R="); 
@@ -350,11 +358,13 @@ void loop() {
   
   // Check to see if we have exceeded the auto-stop interval
   if (moving && (millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
+    moving = 0;
     leftPID.TargetTicksPerFrame = 0;
     rightPID.TargetTicksPerFrame = 0;
+    resetEncoders();
+    resetPID();
     setMotorSpeeds(0, 0);
-    moving = 0;
-    Serial.println("KILLED by autostop (reset MotorSpeeds)");
+    Serial.println("KILLED by autostop (reset MotorSpeeds,Encoders,PID)");
 
   }
 #endif

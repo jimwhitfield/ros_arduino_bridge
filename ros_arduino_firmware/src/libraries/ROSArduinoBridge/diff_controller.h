@@ -33,8 +33,8 @@ SetPointInfo;
 SetPointInfo leftPID, rightPID;
 
 /* PID Parameters */
-int Kp = 20;
-int Kd = 12;
+int Kp = 25;
+int Kd = 10;
 int Ki = 0;
 int Ko = 50;
 
@@ -119,12 +119,16 @@ void updatePID() {
     if (leftPID.PrevInput != 0 || rightPID.PrevInput != 0) resetPID();
     return;
   }
+//  Serial.print("in updatePID.  leftPID.Encoder:"); Serial.print(leftPID.Encoder);
+//  Serial.print(" rightPID.Encoder:"); Serial.println(rightPID.Encoder);
 
   /* Compute PID update for each motor */
   doPID(&rightPID);
   doPID(&leftPID);
 
   /* Set the motor speeds accordingly */
+//  Serial.print("in updatePID.  leftPID.output:"); Serial.print(leftPID.output);
+//  Serial.print(" rightPID.output:"); Serial.println(rightPID.output);
   setMotorSpeeds(leftPID.output, rightPID.output);
 }
 

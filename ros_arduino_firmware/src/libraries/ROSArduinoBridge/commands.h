@@ -14,6 +14,7 @@
 #define READ_ENCODERS  'e'
 #define MOTOR_KILL     'k'
 #define MOTOR_SPEEDS   'm'
+#define MOTOR_SPEEDS_INSPECT   'i'
 #define PING           'p'
 #define RESET_ENCODERS 'r'
 #define SERVO_WRITE    's'
